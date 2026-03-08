@@ -1,15 +1,60 @@
 pipeline {
     agent any
-
+    
     stages {
-        stage('Restore') {
-            steps { sh 'dotnet restore ci.sln' }
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code...'
+                checkout scm
+            }
         }
-        stage('Build') {
-            steps { sh 'dotnet build ci.sln --no-restore' }
+        
+        stage('Restore ConsoleApp1') {
+            steps {
+                echo 'Restoring ConsoleApp1 packages...'
+                dir('TEST/ConsoleApp1') {
+                    sh 'dotnet restore'
+                }
+            }
         }
-        stage('Test') {
-            steps { sh 'dotnet test ci.sln --no-build' }
+        
+        stage('Restore Tests') {
+            steps {
+                echo 'Restoring Test packages...'
+                dir('TEST/SimpleApp.Tests') {
+                    sh 'dotnet restore'
+                }
+            }
+        }
+        
+        stage('Build ConsoleApp1') {
+            steps {
+                echo 'Building ConsoleApp1...'
+                dir('TEST/ConsoleApp1') {
+                    sh 'dotnet build --configuration Release --no-restore'
+                }
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                echo 'Running tests...'
+                dir('TEST/SimpleApp.Tests') {
+                    sh 'dotnet test --configuration Release --no-restore --verbosity normal'
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Pipeline finished!'
+        }
+        success {
+            echo '✅ All tests passed!'
+        }
+        failure {
+            echo '❌ Pipeline failed!'
         }
     }
 }
