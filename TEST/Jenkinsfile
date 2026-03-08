@@ -51,10 +51,10 @@ pipeline {
             echo 'Pipeline finished!'
         }
         success {
-            echo '✅ All tests passed!'
+            echo 'All tests passed!'
         }
         failure {
-            echo '❌ Pipeline failed!'
+            echo 'Pipeline failed!'
         }
     }
 }
